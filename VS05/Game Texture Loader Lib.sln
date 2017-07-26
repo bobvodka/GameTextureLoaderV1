@@ -1,0 +1,47 @@
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual Studio 2005
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GTL Multi Thread Static", "GTL Multi Thread Static\GTL Multi Thread Static.vcproj", "{6F1BCEEC-7F0B-4894-ADD1-3C0AE26A24BF}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GTL Multi Thread DLL", "GTL Multi Thread DLL\GTL Multi Thread DLL.vcproj", "{5EAB3554-825A-4124-B5A8-87E6288D749E}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GTL Multi Thread DLL PhysFS", "GTL Multi Thread DLL PhysFS\GTL Multi Thread DLL PhysFS.vcproj", "{80CBF196-AB2E-4A55-85E6-EF2E953BDE92}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GTL Multi Thread Static PhysFS", "GTL Multi Thread Static PhysFS\GTL Multi Thread Static PhysFS.vcproj", "{C3466F4E-ED36-4050-AE8D-EDED8D79AF30}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Debug|x64 = Debug|x64
+		Release|Win32 = Release|Win32
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6F1BCEEC-7F0B-4894-ADD1-3C0AE26A24BF}.Debug|Win32.ActiveCfg = Debug|Win32
+		{6F1BCEEC-7F0B-4894-ADD1-3C0AE26A24BF}.Debug|Win32.Build.0 = Debug|Win32
+		{6F1BCEEC-7F0B-4894-ADD1-3C0AE26A24BF}.Debug|x64.ActiveCfg = Debug|x64
+		{6F1BCEEC-7F0B-4894-ADD1-3C0AE26A24BF}.Debug|x64.Build.0 = Debug|x64
+		{6F1BCEEC-7F0B-4894-ADD1-3C0AE26A24BF}.Release|Win32.ActiveCfg = Release|Win32
+		{6F1BCEEC-7F0B-4894-ADD1-3C0AE26A24BF}.Release|Win32.Build.0 = Release|Win32
+		{6F1BCEEC-7F0B-4894-ADD1-3C0AE26A24BF}.Release|x64.ActiveCfg = Release|x64
+		{6F1BCEEC-7F0B-4894-ADD1-3C0AE26A24BF}.Release|x64.Build.0 = Release|x64
+		{5EAB3554-825A-4124-B5A8-87E6288D749E}.Debug|Win32.ActiveCfg = Debug|Win32
+		{5EAB3554-825A-4124-B5A8-87E6288D749E}.Debug|Win32.Build.0 = Debug|Win32
+		{5EAB3554-825A-4124-B5A8-87E6288D749E}.Debug|x64.ActiveCfg = Debug|x64
+		{5EAB3554-825A-4124-B5A8-87E6288D749E}.Debug|x64.Build.0 = Debug|x64
+		{5EAB3554-825A-4124-B5A8-87E6288D749E}.Release|Win32.ActiveCfg = Release|Win32
+		{5EAB3554-825A-4124-B5A8-87E6288D749E}.Release|Win32.Build.0 = Release|Win32
+		{5EAB3554-825A-4124-B5A8-87E6288D749E}.Release|x64.ActiveCfg = Release|x64
+		{5EAB3554-825A-4124-B5A8-87E6288D749E}.Release|x64.Build.0 = Release|x64
+		{80CBF196-AB2E-4A55-85E6-EF2E953BDE92}.Debug|Win32.ActiveCfg = Debug|Win32
+		{80CBF196-AB2E-4A55-85E6-EF2E953BDE92}.Debug|x64.ActiveCfg = Debug|x64
+		{80CBF196-AB2E-4A55-85E6-EF2E953BDE92}.Release|Win32.ActiveCfg = Release|Win32
+		{80CBF196-AB2E-4A55-85E6-EF2E953BDE92}.Release|x64.ActiveCfg = Release|x64
+		{C3466F4E-ED36-4050-AE8D-EDED8D79AF30}.Debug|Win32.ActiveCfg = Debug|Win32
+		{C3466F4E-ED36-4050-AE8D-EDED8D79AF30}.Debug|x64.ActiveCfg = Debug|x64
+		{C3466F4E-ED36-4050-AE8D-EDED8D79AF30}.Release|Win32.ActiveCfg = Release|Win32
+		{C3466F4E-ED36-4050-AE8D-EDED8D79AF30}.Release|x64.ActiveCfg = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

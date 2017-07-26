@@ -1,0 +1,61 @@
+Microsoft Visual Studio Solution File, Format Version 8.00
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GTL Single Thread", "GTL Single Thread\GTL Single Thread.vcproj", "{159B120F-81F1-443C-928B-CF4E50740F60}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GTL Multi Thread Static", "GTL Multi Thread Static\GTL Multi Thread Static.vcproj", "{6F1BCEEC-7F0B-4894-ADD1-3C0AE26A24BF}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GTL Multi Thread DLL", "GTL Multi Thread DLL\GTL Multi Thread DLL.vcproj", "{5EAB3554-825A-4124-B5A8-87E6288D749E}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GTL Multi Thread DLL PhysFS", "GTL Multi Thread DLL PhysFS\GTL Multi Thread DLL PhysFS.vcproj", "{5EAB3554-825A-4124-B5A8-87E6288D749E}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GTL Multi Thread Static PhysFS", "GTL Multi Thread Static PhysFS\GTL Multi Thread Static PhysFS.vcproj", "{6F1BCEEC-7F0B-4894-ADD1-3C0AE26A24BF}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GTL Single Thread PhysFS", "GTL Single Thread PhysFS\GTL Single Thread PhysFS.vcproj", "{159B120F-81F1-443C-928B-CF4E50740F60}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfiguration) = preSolution
+		Debug = Debug
+		Release = Release
+	EndGlobalSection
+	GlobalSection(ProjectConfiguration) = postSolution
+		{159B120F-81F1-443C-928B-CF4E50740F60}.Debug.ActiveCfg = Debug|Win32
+		{159B120F-81F1-443C-928B-CF4E50740F60}.Debug.Build.0 = Debug|Win32
+		{159B120F-81F1-443C-928B-CF4E50740F60}.Release.ActiveCfg = Release|Win32
+		{159B120F-81F1-443C-928B-CF4E50740F60}.Release.Build.0 = Release|Win32
+		{6F1BCEEC-7F0B-4894-ADD1-3C0AE26A24BF}.Debug.ActiveCfg = Debug|Win32
+		{6F1BCEEC-7F0B-4894-ADD1-3C0AE26A24BF}.Debug.Build.0 = Debug|Win32
+		{6F1BCEEC-7F0B-4894-ADD1-3C0AE26A24BF}.Release.ActiveCfg = Release|Win32
+		{6F1BCEEC-7F0B-4894-ADD1-3C0AE26A24BF}.Release.Build.0 = Release|Win32
+		{5EAB3554-825A-4124-B5A8-87E6288D749E}.Debug.ActiveCfg = Debug|Win32
+		{5EAB3554-825A-4124-B5A8-87E6288D749E}.Debug.Build.0 = Debug|Win32
+		{5EAB3554-825A-4124-B5A8-87E6288D749E}.Release.ActiveCfg = Release|Win32
+		{5EAB3554-825A-4124-B5A8-87E6288D749E}.Release.Build.0 = Release|Win32
+		{5EAB3554-825A-4124-B5A8-87E6288D749E}.Debug.ActiveCfg = Debug|Win32
+		{5EAB3554-825A-4124-B5A8-87E6288D749E}.Debug.Build.0 = Debug|Win32
+		{5EAB3554-825A-4124-B5A8-87E6288D749E}.Release.ActiveCfg = Release|Win32
+		{5EAB3554-825A-4124-B5A8-87E6288D749E}.Release.Build.0 = Release|Win32
+		{6F1BCEEC-7F0B-4894-ADD1-3C0AE26A24BF}.Debug.ActiveCfg = Debug|Win32
+		{6F1BCEEC-7F0B-4894-ADD1-3C0AE26A24BF}.Debug.Build.0 = Debug|Win32
+		{6F1BCEEC-7F0B-4894-ADD1-3C0AE26A24BF}.Release.ActiveCfg = Release|Win32
+		{6F1BCEEC-7F0B-4894-ADD1-3C0AE26A24BF}.Release.Build.0 = Release|Win32
+		{159B120F-81F1-443C-928B-CF4E50740F60}.Debug.ActiveCfg = Debug|Win32
+		{159B120F-81F1-443C-928B-CF4E50740F60}.Debug.Build.0 = Debug|Win32
+		{159B120F-81F1-443C-928B-CF4E50740F60}.Release.ActiveCfg = Release|Win32
+		{159B120F-81F1-443C-928B-CF4E50740F60}.Release.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+EndGlobal

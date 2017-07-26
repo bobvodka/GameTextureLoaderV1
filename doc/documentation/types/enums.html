@@ -1,0 +1,144 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-AU">
+  <head>
+    <meta http-equiv="content-type" content="application/xhtml+xml; charset=UTF-8" />
+    <meta name="author" content="haran" />
+    <meta name="generator" content="haran" />
+
+    <!-- Navigational metadata for large websites (an accessibility feature): -->
+    <link rel="top"      href="./index.html" title="Homepage" />
+    <link rel="up"       href="./index.html" title="Up" />
+    <link rel="first"    href="./index.html" title="First page" />
+    <link rel="previous" href="./index.html" title="Previous page" />
+    <link rel="next"     href="./index.html" title="Next page" />
+    <link rel="last"     href="./index.html" title="Last page" />
+    <link rel="toc"      href="./index.html" title="Table of contents" />
+    <link rel="index"    href="./index.html" title="Site map" />
+
+    <link rel="stylesheet" type="text/css" href="../../css/tierraverde-screen.css" media="screen" title="Tierra Verde (screen)" />
+    <link rel="stylesheet" type="text/css" href="../../css/tierraverde-print.css" media="print" />
+
+    <title>The Game Texture Loader</title>
+  </head>
+
+  <body>
+    <!-- For non-visual user agents: -->
+      <div id="top"><a href="#main-copy" class="doNotDisplay doNotPrint">Skip to main content.</a></div>
+
+    <!-- ##### Header ##### -->
+  <div id="header">
+      <h1 class="headerTitle">
+        <a href="./index.html" title="Browse to homepage" lang="es"><span>The</span> Game Texture Loader</a>
+      </h1>
+
+  </div>
+    <!-- ##### Side Bar ##### -->
+  <div id="side-bar">
+      <p class="sideBarTitle">This Page</p>
+      <ul>
+        <li><a href="#introduction">Public Enumerations</a></li>
+        <li><a href="#imgformat" title="ImgFormat enum">ImgFormat</a></li>
+		<li><a href="#filetypes" title="FileTypes enum">FileTypes</a></li>
+      </ul>
+
+      <p class="sideBarTitle">Navigation</p>
+      <ul>
+        <li><a href="../../index.html">Project Overview</a></li>
+        <li><a href="../../download.html">Downloads</a></li>
+        <li><a href="../documentation/index.html">User Documentation</a></li>
+		<li><a href="http://sourceforge.net/projects/tgtl/">SourceForge project page</a></li>
+      </ul>
+
+      <p class="sideBarTitle">Feedback?</p>
+    <span class="sideBarText">
+      Comments? Questions? Then
+      <a href="mailto:rob@phantom-web.co.uk?subject=%5BGTL%5D" title="Email form">email me</a>.
+    </span>
+	<span class="sideBarText"><a href="http://sourceforge.net"><img src="http://sourceforge.net/sflogo.php?group_id=146799&amp;type=1" width="88" height="31" border="0" alt="SourceForge.net Logo" /></a></span>
+  </div>
+
+    <!-- ##### Main Copy ##### -->
+
+    <div id="main-copy">
+      <div id="introduction" class="darkerBox">
+        <h1>Public Enumerations</h1>
+        <p>Enums for image and file type identification </p>
+      </div>
+      <div id="imgformat" class="lighterBox">
+        <h1>ImgFormat</h1>
+		<p>
+		<div>
+		
+		  <p class="sideBarTitle">Definition</p>
+		 <div id="struct-def"> <ul>enum ImgFormat <br />
+		    {
+		  <ul>
+			<li><span class="thisPage">FORMAT_NONE</span> = 0,</li>
+			<li><span class="thisPage">FORMAT_RGB</span>,</li>
+			<li><span class="thisPage">FORMAT_BGR</span>,</li>
+			<li><span class="thisPage">FORMAT_RGBA</span></li>
+			<li><span class="thisPage">FORMAT_BGRA</span>,</li>
+			<li><span class="thisPage">FORMAT_ABGR</span>,</li>
+			<li><span class="thisPage">FORMAT_DXT1</span>,</li>
+			<li><span class="thisPage">FORMAT_DXT2</span></li>
+			<li><span class="thisPage">FORMAT_DXT3</span>,</li>
+			<li><span class="thisPage">FORMAT_DXT4</span>,</li>
+			<li><span class="thisPage">FORMAT_DXT5</span>,</li>
+			<li><span class="thisPage">FORMAT_3DC</span></li>
+		</ul>
+	}</ul>
+		  </div>
+		<p class="sideBarTitle">Other Details / Notes</p>
+		<ul>
+		<li>Used to identify the type of image represented by an Image struct</li>
+		</ul>
+		</div>
+		</p>
+	  </div>
+	  <div id="filetypes" class="lighterBox">
+        <h1>FileTypes</h1>
+		<p>
+		<div>
+		
+		  <p class="sideBarTitle">Definition</p>
+		 <div id="struct-def"> <ul>
+		  	<li>const int <span class="thisPage">TYPE_BMP</span> = 1;</li>
+			<li>const int <span class="thisPage">TYPE_JPG</span> = 2;</li>
+			<li>const int <span class="thisPage">TYPE_TGA</span> = 3;</li>
+			<li>const int <span class="thisPage">TYPE_PNG</span> = 4;</li>
+			<li>const int <span class="thisPage">TYPE_DDS</span> = 5;</li>
+		    <p>&nbsp;</p>
+		 </ul>
+		  </div>
+		<p class="sideBarTitle">Other Details / Notes</p>
+		<ul>
+		<li>Used to tell the loader which file type you want to use. Also used internally in the registering of loaders on start up. </li>
+		<li>Changed from an enum to constants to allow for the registering of extra types at runtime. </li>
+		</ul>
+		</div>
+		</p>
+	  </div>
+  </div>
+
+    <!-- ##### Footer ##### -->
+
+    <div id="footer">
+      <div class="left doNotPrint">
+        <a href="http://validator.w3.org/check/referer">Valid XHTML 1.0 Strict</a> |
+        <a href="http://jigsaw.w3.org/css-validator/check/referer">Valid CSS</a>
+      </div>
+
+      <div class="right">
+        Modified: 2004-Dec-31 |
+        Designer: <a href="http://www.oswd.org/email.phtml?user=haran" title="Email designer">haran</a>
+      </div>
+
+      <br class="doNotDisplay doNotPrint" />
+    </div>
+  <div class="subFooter">
+      Copyright &copy; 2004, Rob Jones<br class="doNotPrint" />
+    </div>
+  </body>
+</html>
