@@ -101,42 +101,140 @@ namespace GameTextureLoader { namespace Filters {
 				png_set_read_fn(png_ptr_, src, PNG::read_function);
 				png_set_sig_bytes(png_ptr_, 8);  // we already read 8 bytes for the sig
 				// always give us 8-bit samples (strip 16-bit and expand <8-bit)
-				png_read_png(png_ptr_, info_ptr_, PNG_TRANSFORM_STRIP_16 | PNG_TRANSFORM_EXPAND, NULL);
+				// The below allows us to convert paletted images to RGB(A) images BUT it costs us 1 and 2 channel grey scale images
+				//png_read_png(png_ptr_, info_ptr_, PNG_TRANSFORM_STRIP_16 | PNG_TRANSFORM_EXPAND, NULL);
+				
+				// So instead we are going to deal with things on our own
+				// First we need to read in the header
+				png_read_info(png_ptr_, info_ptr_);
 
-				if (!png_get_rows(png_ptr_, info_ptr_)) {
+				// Next we obtain the information we require
+				int bit_depth;
+				int colourtype;
+				png_uint_32 width, height;
+				if(!png_get_IHDR(png_ptr_,info_ptr_,&width, &height,&bit_depth, &colourtype, NULL, NULL, NULL))
+				{
 					png_destroy_read_struct(&png_ptr_, &info_ptr_, NULL);
 					return -1;
 				}
+				
+				// all images are always expanded to 8bit per pixel
+				if(bit_depth < 8)
+				{
+					png_set_packing(png_ptr_);
+					bit_depth = 8;
+				}
 
-				int bit_depth = png_get_bit_depth(png_ptr_, info_ptr_);
+				if(PNG_COLOR_TYPE_PALETTE == colourtype)
+				{
+					png_set_packing(png_ptr_);		// expand 1,2 & 4bit depths to 8bit
+					png_set_expand(png_ptr_);	// convert paletted colours to full RGB colours
+					if(png_get_valid(png_ptr_, info_ptr_, PNG_INFO_tRNS))
+					{
+						png_set_tRNS_to_alpha(png_ptr_);
+						png_color_16 *image_background;
+
+						// If the file has a valid 'background' then render pixels to it
+						if (png_get_bKGD(png_ptr_, info_ptr_, &image_background))
+							png_set_background(png_ptr_, image_background,PNG_BACKGROUND_GAMMA_FILE, 1, 1.0);
+
+						imgdata_.format = FORMAT_RGBA;
+					}
+					else
+						imgdata_.format = FORMAT_RGB;
+				}
+				else
+				{
+					switch(bit_depth)
+					{
+					case 8:
+						switch(colourtype)
+						{
+						case PNG_COLOR_TYPE_RGB_ALPHA: imgdata_.format = FORMAT_RGBA; break;
+						case PNG_COLOR_TYPE_RGB: imgdata_.format = FORMAT_RGB; break;
+						case PNG_COLOR_TYPE_GRAY_ALPHA: imgdata_.format = FORMAT_A8L8; break;
+						case PNG_COLOR_TYPE_GRAY: imgdata_.format = FORMAT_L8; break;
+						default: imgdata_.format = FORMAT_NONE; break;
+						}
+						break;
+					case 16:
+						switch(colourtype)
+						{
+						case PNG_COLOR_TYPE_RGB_ALPHA: imgdata_.format = FORMAT_RGBA16; break;
+						case PNG_COLOR_TYPE_RGB: imgdata_.format = FORMAT_RGB16; break;
+						case PNG_COLOR_TYPE_GRAY_ALPHA: imgdata_.format = FORMAT_A16L16; break;
+						case PNG_COLOR_TYPE_GRAY: imgdata_.format = FORMAT_L16; break;
+						default: imgdata_.format = FORMAT_NONE; break;
+						}
+						break;
+					default:
+						imgdata_.format = FORMAT_NONE;
+					}
+				}
+		
+				// update the transformations
+				png_read_update_info(png_ptr_, info_ptr_);
+
+				// setup imgdata structure
 				int num_channels = png_get_channels(png_ptr_, info_ptr_);
-
-				imgdata_.width = png_get_image_width(png_ptr_, info_ptr_);
-				imgdata_.height = png_get_image_height(png_ptr_, info_ptr_);
+				imgdata_.width = width;
+				imgdata_.height = height;
 				imgdata_.colourdepth = bit_depth * num_channels;
 				imgdata_.depth = 0;
 				imgdata_.numImages = 1;
-				imgdata_.numMipMaps = 0;
-				imgdata_.size = imgdata_.width * imgdata_.height * num_channels;
-				rowlenght_ = imgdata_.width * num_channels;
-				row_pointers_ = png_get_rows(png_ptr_, info_ptr_);
+				imgdata_.numMipMaps = 1;
+				rowlenght_ = png_get_rowbytes(png_ptr_, info_ptr_);
+				imgdata_.size = imgdata_.width * imgdata_.height * rowlenght_;
+				
 
-				if (bit_depth == 8 && num_channels == 4)
-					imgdata_.format = FORMAT_RGBA;
-				else  if (bit_depth == 8 && num_channels == 3)
-					imgdata_.format = FORMAT_RGB;
-				else
+				// reserve space for the row
+				row_pointers_ = new png_bytep[imgdata_.height];
+				for (int row = 0; row < imgdata_.height; row++)
 				{
-					png_destroy_read_struct(&png_ptr_, &info_ptr_, NULL);					
-					imgdata_.format = FORMAT_NONE;
-					return -1;	// we dont deal with palletted images
+					row_pointers_[row] = reinterpret_cast<png_bytep>(png_malloc(png_ptr_, rowlenght_));
 				}
+				png_read_image(png_ptr_, row_pointers_);	// finally load in the image
 
+				SetFlips(imgdata_,false,false);
 				headerdone_ = true;
+				rowoffset_=0;
 			}
 
+			if (!png_ptr_)
+				return -1;
 
-			// read upto 'n' bytes from each row (raw_pointers_[rowoffset_];) , stiching together rows into the buffer
+			int toread=n;
+			while (toread>0)
+			{
+				if (rowlenght_==rowoffset_)
+				{
+					rowoffset_=0;
+					++currentrow_;
+					
+					if (currentrow_ >= imgdata_.height)
+					{
+						png_destroy_read_struct(&png_ptr_, &info_ptr_, NULL);
+						delete [] row_pointers_;
+						break;
+					}
+				}
+				
+				byte * bufferptr = reinterpret_cast<byte*>(row_pointers_[currentrow_]) + rowoffset_;
+				int tocopy=rowlenght_-rowoffset_;
+				if (tocopy>toread)
+					tocopy=toread;
+
+				memcpy(s, bufferptr, tocopy);
+				s+=tocopy;
+				toread-=tocopy;
+				rowoffset_+=tocopy;
+			}
+
+			return n-toread;
+
+
+/*
+			// read up to 'n' bytes from each row (raw_pointers_[rowoffset_];) , stitching together rows into the buffer
 			// as required.
 			while (currentrow_ < imgdata_.height)
 			{
@@ -170,6 +268,7 @@ namespace GameTextureLoader { namespace Filters {
 			
 
 			return -1;
+*/
 		}
 
 	protected:
@@ -178,11 +277,11 @@ namespace GameTextureLoader { namespace Filters {
 		bool headerdone_;
 		png_structp png_ptr_;
 		png_infop info_ptr_;
-		png_bytepp row_pointers_;
+		png_bytep *row_pointers_;
 
 		int rowoffset_;
-		int rowlenght_;
 		int currentrow_;
+		int rowlenght_;
 	};
 
 	filterptr MakePNGFilter(LoaderImgData_t &imgdata)

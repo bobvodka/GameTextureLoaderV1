@@ -6,9 +6,11 @@
 #define GTL_GAMETEXTURELOADER_HPP
 #include "config.hpp"
 #include <stdexcept>
+#ifndef GTL_MANAGED
 #include <boost/shared_ptr.hpp>
-#include <string>
 #include <boost/function.hpp>
+#endif
+#include <string>
 #include <iosfwd>
 #include <boost/iostreams/positioning.hpp>
 
@@ -32,8 +34,38 @@ namespace GameTextureLoader
 		FORMAT_DXT4,
 		FORMAT_DXT5,
 		FORMAT_3DC,
-		FORMAT_FLOAT16,
-		FORMAT_FLOAT32
+
+		//FORMAT_FLOAT16,
+		//FORMAT_FLOAT32,
+		//some more 3DS formats follow
+		FORMAT_R32G32B32A32F,	//4 channel fp32
+		FORMAT_R16G16B16A16F,	//4 channel fp16
+		FORMAT_G16R16F,			//2 channel fp16
+		FORMAT_G32R32F,			//2 channel fp32
+		FORMAT_R16F,			//1 channel fp16
+		FORMAT_R32F,			//1 channel fp16
+
+		//additional formats for dds mainly
+		//rgb formats
+		FORMAT_R5G6B5,			//16bit
+		FORMAT_X1R5G5B5,		//15bit
+		FORMAT_A1R5G5B5,		//15bit + 1 bit alpha
+		FORMAT_L8,				//luminance 
+		FORMAT_A8L8,			//alpha, luminance
+		FORMAT_L16,				//luminance 16bit
+		FORMAT_A8,				//alpha only
+		FORMAT_G16R16,			//?? normal maps? L16A16 in opengl?
+
+		//normal map formats
+		FORMAT_V8U8,			//signed format, nv_texture_shader
+		FORMAT_V16U16,			//signed, nv_texture_shader
+		FORMAT_Q8W8V8U8,		//signed, nv_texture_shader
+
+		// Additional formats for PNG images
+		FORMAT_RGBA16,			// RGBA 16bit (not floating point)
+		FORMAT_RGB16,			// RGB 16bit (not floating point)
+		FORMAT_A16,				// 16bit alpha only
+		FORMAT_A16L16			// 16bit alpha and luminance
 	};
 
 	const int TYPE_BMP = 1;
@@ -41,6 +73,14 @@ namespace GameTextureLoader
 	const int TYPE_TGA = 3;
 	const int TYPE_PNG = 4;
 	const int TYPE_DDS = 5;
+
+	enum ImgOrigin
+	{
+		ORIGIN_TOP_LEFT = 0,
+		ORIGIN_TOP_RIGHT,
+		ORIGIN_BOTTOM_LEFT,
+		ORIGIN_BOTTOM_RIGHT
+	};
 
 	typedef int FileTypes;
 
@@ -55,7 +95,7 @@ namespace GameTextureLoader
 		int numMipMaps;
 	};
 
-	struct Image
+	struct GTL_API Image
 	{
 		Image()
 		{
@@ -69,7 +109,7 @@ namespace GameTextureLoader
 		virtual ~Image(){};
 
 		// Access functions
-		unsigned char * getDataPtr(int imgnumber = 0, int mipmaplvl = 0);
+		unsigned char * getDataPtr(int mipmaplvl = 0, int imgnumber = 0);
 		int getWidth(int mipmaplvl = 0);
 		int getHeight(int mipmaplvl = 0);
 		int getDepth(int mipmaplvl = 0);
@@ -77,10 +117,13 @@ namespace GameTextureLoader
 		int getNumMipMaps();
 		int getNumImages();
 		int getColourDepth();
+		int getColorDepth();	// For our American friends
 		ImgFormat getFormat();
 
+		void decompress();	// decompress a DDS texture
+
 	private:
-		virtual unsigned char * getDataPtrImpl(int imgnumber, int mipmaplvl) = 0;
+		virtual unsigned char * getDataPtrImpl( int mipmaplvl, int imgnumber) = 0;
 		virtual int getWidthImpl(int mipmaplvl) = 0;
 		virtual int getHeightImpl(int mipmaplvl) = 0;
 		virtual int getDepthImpl(int mipmaplvl) = 0;
@@ -89,11 +132,14 @@ namespace GameTextureLoader
 		virtual int getNumImagesImpl() = 0;
 		virtual int getColourDepthImpl() = 0;
 		virtual ImgFormat getFormatImpl() = 0;
+		virtual void decompressImpl() = 0;
 	};
 
+#ifndef GTL_MANAGED
+	typedef boost::shared_ptr<Image> ImagePtr;
 	typedef boost::function<std::streamsize (char *, std::streamsize)> ReadFunc_t;
 	typedef boost::function<std::streampos (boost::iostreams::stream_offset, std::ios_base::seekdir)> SeekFunc_t;
-	typedef boost::shared_ptr<Image> ImagePtr;
+#endif	
 
 	class LoaderNotFoundException : public std::runtime_error
 	{
@@ -104,13 +150,20 @@ namespace GameTextureLoader
 	};
 
 	// Texture Loading functions
-	Image* LoadTexture(std::string const &filename);
-	Image* LoadTexture(std::string const &filename, FileTypes val);
+	GTL_API Image* LoadTexture(std::string const &filename);
+	GTL_API Image* LoadTexture(std::string const &filename, FileTypes val);
+#ifndef GTL_MANAGED
 	Image* LoadTexture(ReadFunc_t reader, SeekFunc_t seeker, FileTypes val);
-	
-	void FreeTexture(Image* img);
+#endif
 
+	GTL_API void FreeTexture(Image* img);
+
+	// Sets up the origin for all images loaded after this call
+	GTL_API void SetOrigin(ImgOrigin origin);
+
+#ifndef GTL_MANAGED
 	// inline "Safe" Loading functions which return a Boost::shared_ptr
+	typedef boost::shared_ptr<Image> ImagePtr;
 	inline ImagePtr LoadTextureSafe(std::string const &filename)
 	{
 		return ImagePtr(LoadTexture(filename.c_str()),FreeTexture);
@@ -125,10 +178,11 @@ namespace GameTextureLoader
 	{
 		return ImagePtr(LoadTexture(reader,seeker,val),FreeTexture);
 	}
+#endif
 
 #if defined(GTL_PHYSFS_SUPPORT)
-	Image* LoadTexture(PHYSFS_File* file, FileTypes val);
-	Image* LoadTexture(PHYSFS_File*file, std::string const &filename);
+	GTL_API Image* LoadTexture(PHYSFS_File* file, FileTypes val);
+	GTL_API Image* LoadTexture(PHYSFS_File*file, std::string const &filename);
 
 	inline ImagePtr LoadTextureSafe(PHYSFS_File* file, FileTypes val)
 	{
@@ -140,6 +194,11 @@ namespace GameTextureLoader
 		return ImagePtr(LoadTexture(file,filename.c_str()),FreeTexture);
 	}
 #endif
+
+	// Some aux functionality
+	// probably wants to end up in its own name space
+
+//	void DecompressImage(Image * img);	// decompresses a DXT image
 }
 
 #endif

@@ -20,16 +20,16 @@ namespace GameTextureLoader
 
 		struct FilterCreatorDetails
 		{
+			FileTypes id_;
+			std::string key_;
+			FilterCreator_t creator_;
+			
 			FilterCreatorDetails(FileTypes id, std::string const &key, FilterCreator_t creator) : id_(id), key_(key), creator_(creator)
 			{
 			}
 			FilterCreatorDetails(FilterCreatorDetails const &lhs) : id_(lhs.id_), key_(lhs.key_), creator_(lhs.creator_)
 			{
 			}
-			std::string key_;
-			FileTypes id_;
-			FilterCreator_t creator_;
-
 			bool operator<(FilterCreatorDetails const &lhs) const 
 			{ 
 				return id_ < lhs.id_;
@@ -73,7 +73,7 @@ namespace GameTextureLoader
 		};
 
 #define DECLARE_TEXTURE_LOADER( idnum, loaderName, callbackFunction ) \
-	static FilterRegister FilterRegister_##callbackFunction##( idnum, loaderName, callbackFunction );
+	static FilterRegister FilterRegister_##callbackFunction ( idnum, loaderName, callbackFunction );
 			
 	}
 }

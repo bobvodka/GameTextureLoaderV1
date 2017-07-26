@@ -99,6 +99,62 @@ namespace GameTextureLoader
 			return minsize;
 
 		}
+
+		inline int GetMipLevelSize( unsigned int width, unsigned int height, unsigned int depth, ImgFormat format)
+		{
+			if (!depth)
+				depth=1;
+
+			int numPixels=width*height*depth;
+			
+			switch( format)
+			{
+			case FORMAT_L8:
+			case FORMAT_A8:
+				return numPixels;
+
+			case FORMAT_R16F:
+			case FORMAT_R5G6B5:
+			case FORMAT_X1R5G5B5:
+			case FORMAT_A1R5G5B5:
+			case FORMAT_A8L8:
+			case FORMAT_L16:
+			case FORMAT_V8U8:
+				return numPixels*2;
+
+			case FORMAT_RGB:
+			case FORMAT_BGR:
+				return numPixels*3;
+
+			case FORMAT_RGBA:
+			case FORMAT_BGRA:
+			case FORMAT_ABGR:
+			case FORMAT_R32F:
+			case FORMAT_G16R16F:
+			case FORMAT_V16U16:
+			case FORMAT_G16R16:
+			case FORMAT_Q8W8V8U8:
+				return numPixels*4;
+
+			case FORMAT_R16G16B16A16F:
+			case FORMAT_G32R32F:
+				return numPixels*8;
+
+			case FORMAT_R32G32B32A32F:
+				return numPixels*16;
+			
+			case FORMAT_DXT1:
+				return ((width+3)/4) * ((height+3)/4) * depth * 8;
+			case FORMAT_DXT2:
+			case FORMAT_DXT3:
+			case FORMAT_DXT4:
+			case FORMAT_DXT5:
+			case FORMAT_3DC:
+				return ((width+3)/4) * ((height+3)/4) * depth * 16;
+			}
+			return -1;
+		}
+
 	}
 }
 

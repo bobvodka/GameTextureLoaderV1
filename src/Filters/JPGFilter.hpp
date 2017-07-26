@@ -15,8 +15,12 @@
 #include <csetjmp>
 
 extern "C" {  // stupid JPEG library
-		#include "jpeg-6b\jpeglib.h"
-	}
+#ifdef WIN32
+	#include "jpeg-6b/jpeglib.h"
+#else
+	#include <jpeglib.h>
+#endif
+}
 
 namespace GameTextureLoader { 	namespace Filters {
 	
@@ -50,7 +54,7 @@ namespace GameTextureLoader { 	namespace Filters {
 			JPG::InternalStruct* is = (JPG::InternalStruct*)(cinfo->client_data);
 
 			std :: streamsize nbytes = io::read(*(is->file),reinterpret_cast<streambuf_t::char_type*>(is->buffer),JPEG_BUFFER_SIZE);
-			if (nbytes == -1) 
+			if (-1 == nbytes) 
 			{
 				/* Insert a fake EOI marker */
 				is->buffer[0] = (JOCTET)0xFF;
@@ -148,6 +152,8 @@ namespace GameTextureLoader { 	namespace Filters {
 			if(!headerdone)
 			{
 				jpeg_read_header(cinfo_.get(), TRUE);
+				cinfo_->output_components=3;
+				cinfo_->out_color_space=JCS_RGB;
 				jpeg_start_decompress(cinfo_.get());
 
 				if (cinfo_->output_components != 1 && cinfo_->output_components != 3) {
@@ -165,17 +171,55 @@ namespace GameTextureLoader { 	namespace Filters {
 				imgdata_.width = cinfo_->output_width;
 				imgdata_.height = cinfo_->output_height;
 				imgdata_.numImages = 1;
-				imgdata_.numMipMaps = 0;
+				imgdata_.numMipMaps = 1;
 				imgdata_.size = cinfo_->output_width * cinfo_->output_height * cinfo_->output_components;
 				imgdata_.colourdepth = cinfo_->output_components * 8;
-				if(cinfo_->output_components == 3)
+				if(3 == cinfo_->output_components)
 					imgdata_.format = FORMAT_RGB;
 				else
 					imgdata_.format = FORMAT_NONE;	// fix this for grayscale images
 				imgdata_.depth = 0;
+				SetFlips(imgdata_,false,false);
 				headerdone = true;
+				linebufferoffset_=row_stride_;	//initial condition to force reading a new row
 			}
 
+			if (0==cinfo_->global_state)
+				return -1;
+
+			int toread=n;
+			while (toread>0)
+			{
+				if (row_stride_==linebufferoffset_)
+				{						
+					if (cinfo_->output_scanline < cinfo_->output_height)
+					{
+						if (1==jpeg_read_scanlines(cinfo_.get(),linebuffer_,1))
+						{
+							linebufferoffset_=0;
+							continue;
+						}
+					}
+
+					jpeg_finish_decompress(cinfo_.get());
+					jpeg_destroy_decompress(cinfo_.get());
+					break;											
+				}
+
+				byte * bufferptr = reinterpret_cast<byte*>(*linebuffer_) + linebufferoffset_;
+				int tocopy=row_stride_-linebufferoffset_;
+				if (tocopy>toread)
+					tocopy=toread;
+
+				memcpy(s, bufferptr, tocopy);
+				s+=tocopy;
+				toread-=tocopy;
+				linebufferoffset_+=tocopy;
+			}
+
+			return n-toread;
+
+/*
 			while(cinfo_->output_scanline < cinfo_->output_height)
 			{
 				if(linebufferoffset_ + n < row_stride_)
@@ -211,13 +255,13 @@ namespace GameTextureLoader { 	namespace Filters {
 			jpeg_destroy_decompress(cinfo_.get());
 			
 			return -1; 
+*/
 		}
 			
 	protected:
 	private:
-
-		LoaderImgData_t &imgdata_;
 		bool headerdone;
+		LoaderImgData_t &imgdata_;
 		boost::shared_array<byte> buffer_;
 		boost::shared_ptr<jpeg_source_mgr> mgr_;
 		boost::shared_ptr<jpeg_decompress_struct> cinfo_;

@@ -70,6 +70,7 @@ namespace GameTextureLoader { namespace Filters
 					int amountleft = imgdata_.size - rowoffset_;
 					byte * sourceptr = reinterpret_cast<byte*>(&databuffer_[rowoffset_]);
 					std::copy(sourceptr, sourceptr + amountleft ,s);
+					rowoffset_+=amountleft;
 					return amountleft;
 				}
 				else
@@ -91,8 +92,9 @@ namespace GameTextureLoader { namespace Filters
 		template<typename Source>
 			bool readHeader(Source& src)
 		{
-			byte header[18];
-			if(io::read(src,reinterpret_cast<typename Source::char_type*>(header),18) != 18)
+			const int TGAHEADERSIZE = 18;	// TGA header is 18 bytes
+			byte header[TGAHEADERSIZE];
+			if(io::read(src,reinterpret_cast<typename Source::char_type*>(header),TGAHEADERSIZE) != TGAHEADERSIZE)
 				return false;
 
 			// decode header
@@ -113,8 +115,8 @@ namespace GameTextureLoader { namespace Filters
 				return false;	// currently no support for properly compressed images, need to work on this.
 
 			//int cm_first         = read16_le(header + 3);
-			int cm_length        = Utils::read16_le(header + 5);
-			int cm_entry_size    = header[7];  // in bits
+//			int cm_length        = Utils::read16_le(header + 5);
+//			int cm_entry_size    = header[7];  // in bits
 			//int x_origin         = read16_le(header + 8);
 			//int y_origin         = read16_le(header + 10);
 			int width            = Utils::read16_le(header + 12);
@@ -130,10 +132,11 @@ namespace GameTextureLoader { namespace Filters
 			imgdata_.colourdepth = pixel_depth;
 			imgdata_.size = width * height * (pixel_depth/8);
 			imgdata_.depth = 0;
-			imgdata_.numMipMaps = 0;
+			imgdata_.numMipMaps = 1;
 			rowlenght_ = width * (pixel_depth/8);
-			imgdata_.xflip = mirrored;
-			imgdata_.yflip = flipped;
+			SetFlips(imgdata_,flipped,mirrored);
+			//imgdata_.xflip = mirrored;
+			//imgdata_.yflip = flipped;
 			
 			
 			switch(pixel_depth)
@@ -156,8 +159,15 @@ namespace GameTextureLoader { namespace Filters
 				return false;
 			}
 
-			// skip the id field
-			io::seek(src,18+id_length,std::ios_base::beg);
+			// read the id stuff, not using seeking to be able to use non seekable sources in the future
+			//io::seek(src,id_length,std::ios_base::cur);
+			while (id_length)
+			{
+				int toRead= id_length>TGAHEADERSIZE ? TGAHEADERSIZE : id_length;
+				if (toRead!=io::read(src,reinterpret_cast<typename Source::char_type*>(header), toRead) )
+					return false;
+				id_length-=toRead;
+			}
 			return true;
 		}
 
@@ -204,17 +214,16 @@ namespace GameTextureLoader { namespace Filters
 			}
 			return true;
 		}
-
-			
-
+	
+		LoaderImgData_t &imgdata_;
+		bool headerdone_;
 		boost::shared_array<byte> databuffer_;
+		bool RLE_;
 		int currentrow_;
 		int rowoffset_;
 		int rowlenght_;
-		LoaderImgData_t &imgdata_;
-		bool headerdone_;
-		bool RLE_;
-
+		
+		
 	};
 
 	filterptr MakeTGAFilter(LoaderImgData_t &imgdata)

@@ -1,14 +1,19 @@
 // Main GameTextureLoader source file
 // Pulls it all together
+#ifdef WIN32
 #pragma warning(push)	//disable some warnings for this cpp FileDevice
 #pragma warning(disable : 4996)	// disable complains about not using the secure CRT in 
 								// boost and the string header
+#endif
 
 #include <string>
 #include <boost/iostreams/device/file_descriptor.hpp>
 #include <boost/iostreams/filtering_stream.hpp>
 #include <boost/iostreams/detail/ios.hpp>
+
+#ifdef WIN32
 #pragma warning(pop)
+#endif
 
 #include <algorithm>
 #include <iostream>
@@ -20,7 +25,7 @@
 
 #include "Filters/FilterRegister.hpp"
 #include "Filters/FilterProxy.hpp"
-#include "Filters/filters.hpp"
+#include "Filters/Filters.hpp"
 
 #include "Devices/DeviceBase.hpp"
 #include <gtl/DeviceProxy.hpp>
@@ -42,15 +47,17 @@ namespace GameTextureLoader
 	//	GTL Image class functions
 	//////////////////////////////////////////////////////////////////////////
 
-	unsigned char * Image::getDataPtr(int imgnumber, int mipmaplvl) {return getDataPtrImpl(imgnumber,mipmaplvl);};
+	unsigned char * Image::getDataPtr(int mipmaplvl, int imgnumber) {return getDataPtrImpl(mipmaplvl,imgnumber);};
 	int Image::getWidth(int mipmaplvl){return getWidthImpl(mipmaplvl);};
 	int Image::getHeight(int mipmaplvl){return getHeightImpl(mipmaplvl);};
-	int Image::getDepth(int mipmaplvl){return getWidthImpl(mipmaplvl);};
+	int Image::getDepth(int mipmaplvl){return getDepthImpl(mipmaplvl);};
 	int Image::getSize(int mipmaplvl){return getSizeImpl(mipmaplvl);};
 	int Image::getNumMipMaps() { return getNumMipMapsImpl();};
 	int Image::getNumImages(){return getNumImagesImpl();};
 	int Image::getColourDepth(){return getColourDepthImpl();};
+	int Image::getColorDepth(){return getColourDepthImpl();};
 	ImgFormat Image::getFormat(){return getFormatImpl();};
+	void Image::decompress(){return decompressImpl();};
 
 	
 	// Does the image loading
@@ -59,7 +66,6 @@ namespace GameTextureLoader
 		io::filtering_istream::char_type databuffer[128];
 		int dataoffset = 0;
 		std::streamsize s;
-		int height = 0;
 		while(( s = io::read(texturein,databuffer,128)) != -1)
 		{
 			// On the first run of a filter it needs to fill out information structure so we can
@@ -76,16 +82,17 @@ namespace GameTextureLoader
 			dataoffset += s;
 		}
 
-		if(headerdata.xflip)
+		if ( (headerdata.format < FORMAT_DXT1 || headerdata.format > FORMAT_DXT5) && realdata && headerdata.format!=FORMAT_NONE)
 		{
-			// fix mirrored data
-			FlipX(realdata,headerdata);
-		}
-		if(headerdata.yflip)
-		{
+			if(headerdata.xflip)
+				// fix mirrored data
+				FlipX(realdata,headerdata);
+			
+			if(headerdata.yflip)
 			// invert image
-			FlipY(realdata,headerdata);
+				FlipY(realdata,headerdata);
 		}
+
 	}
 
 	Image* LoadData(io::filtering_istream &texturein, LoaderImgData_t &headerdata)
@@ -137,7 +144,7 @@ namespace GameTextureLoader
 		return LoadData(texturein,headerdata,userfunc);
 	}
 
-	Image* LoadTexture(std::string const &filename)
+	GTL_API Image* LoadTexture(std::string const &filename)
 	{
 		std::string ext = ExtractFileExtension(filename);
 	
@@ -172,7 +179,7 @@ namespace GameTextureLoader
 	}
 
 
-	Image* LoadTexture(std::string const &filename, FileTypes val)
+	GTL_API Image* LoadTexture(std::string const &filename, FileTypes val)
 	{
 		try
 		{
@@ -198,8 +205,37 @@ namespace GameTextureLoader
 		return new ImageImpl();
 	}
 
+	bool xflip = true;
+	bool yflip = true;
+
+	GTL_API void SetOrigin(ImgOrigin origin)
+	{
+		switch(origin)
+		{
+		case ORIGIN_TOP_LEFT:
+			xflip = false;
+			yflip = true;
+			break;
+		case ORIGIN_BOTTOM_LEFT:
+			xflip = false;
+			yflip = false;
+			break;
+		case ORIGIN_TOP_RIGHT:
+			xflip = true;
+			yflip = true;
+		    break;
+		case ORIGIN_BOTTOM_RIGHT:
+			xflip = true;
+			yflip = false;
+		    break;
+		default:
+		    break;
+		}
+	}
+
+
 #ifdef GTL_PHYSFS_SUPPORT
-	Image* LoadTexture(PHYSFS_File* file, FileTypes val)
+	GTL_API Image* LoadTexture(PHYSFS_File* file, FileTypes val)
 	{
 		Devices::PhysFSDevice dev(file);
 		return LoadTexture(dev,val);
@@ -211,7 +247,7 @@ namespace GameTextureLoader
 		return LoadTexture(dev,val,userfunc);
 	}
 
-	Image* LoadTexture(PHYSFS_File *file, std::string const &filename)
+	GTL_API Image* LoadTexture(PHYSFS_File *file, std::string const &filename)
 	{
 		std::string ext = ExtractFileExtension(filename);
 		Devices::PhysFSDevice dev(file);
@@ -238,7 +274,7 @@ namespace GameTextureLoader
 		return LoadTexture(dev, val,callback);
 	}
 
-	void FreeTexture(Image* img)
+	GTL_API void FreeTexture(Image* img)
 	{
 		delete img;
 	}
@@ -254,7 +290,5 @@ namespace GameTextureLoader
 		Filters::FilterRegister reg;
 		reg.UnRegisterRunTimeFilter(filterID);
 	}
-
-
 
 }
